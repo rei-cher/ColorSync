@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include "WiFiManager.h"
 #include "RGBController.h"
 
