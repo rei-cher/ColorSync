@@ -44,3 +44,8 @@ void rgb_off(){
     }
     FastLED.show();
 }
+
+void fillSolid(CRGB color) {
+    fill_solid(leds, NUM_LEDS, color);
+    FastLED.show();
+}

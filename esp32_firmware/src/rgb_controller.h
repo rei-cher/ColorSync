@@ -9,5 +9,6 @@ void fillRed();
 void rainbow();
 void snake();
 void rgb_off();
+void fillSolid(CRGB color);
 
 #endif
