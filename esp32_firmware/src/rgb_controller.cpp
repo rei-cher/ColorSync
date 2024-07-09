@@ -2,6 +2,8 @@
 #include <rgb_controller.h>
 #include <config.h>
 
+bool running = false;
+
 CRGB leds[NUM_LEDS];
 
 int snakeL = 10;
@@ -39,13 +41,24 @@ void snake(){
 }
 
 void rgb_off(){
-    for (int i=0; i<NUM_LEDS; i++){
-        leds[i] = CRGB::Black;
-    }
+    running = false;
+    fill_solid(leds, NUM_LEDS, CRGB::Black);
     FastLED.show();
 }
 
 void fillSolid(CRGB color) {
     fill_solid(leds, NUM_LEDS, color);
     FastLED.show();
+}
+
+void screen_sync(const String& command){
+    int commaIndex1 = command.indexOf(',');
+    int commaIndex2 = command.indexOf(',', commaIndex1 + 1);
+    if (commaIndex1 > 0 && commaIndex2 > 0) {
+        int r = command.substring(4, commaIndex1).toInt();
+        int g = command.substring(commaIndex1 + 1, commaIndex2).toInt();
+        int b = command.substring(commaIndex2 + 1).toInt();
+        running = false;
+        fillSolid(CRGB(r, g, b));
+    }
 }

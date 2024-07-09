@@ -13,6 +13,7 @@ class ScreenColorSync:
         self.serial_conn = None
         self.capture_region = self.get_screen_region()
         self.running = True
+        self.stopped = False
         self.previous_color = (0, 0, 0)
 
     def get_screen_region(self):
@@ -39,11 +40,18 @@ class ScreenColorSync:
         return self.previous_color
 
     def send_color_to_esp32(self, color):
+        if self.stopped:
+            return
         r, g, b = color
         color_str = f"rgb:{r},{g},{b}\n"
         if self.serial_conn:
             self.serial_conn.write(color_str.encode())
             print(f"Sent color: {color}")
+
+    def turn_off_leds(self):
+        if self.serial_conn:
+            self.serial_conn.write("off\n".encode())
+            print("Turned off LEDs")
 
     def start(self):
         try:
@@ -60,8 +68,11 @@ class ScreenColorSync:
         except Exception as e:
             print(f"Error: {e}")
         finally:
+            self.turn_off_leds()
+            self.stopped = True
             if self.serial_conn:
                 self.serial_conn.close()
 
     def stop(self):
         self.running = False
+        self.stopped = True
