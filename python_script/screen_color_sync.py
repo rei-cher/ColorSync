@@ -15,6 +15,7 @@ class ScreenColorSync:
         self.running = True
         self.stopped = False
         self.previous_color = (0, 0, 0)
+        self.brigtness = 255
 
     def get_screen_region(self):
         monitors = get_monitors()
@@ -31,6 +32,9 @@ class ScreenColorSync:
     def get_average_color(self, image):
         image = image.resize((1, 1))
         return image.getpixel((0, 0))
+    
+    def compute_brightness(self, color):
+        return int((color[0] + color[1] + color[2]) / 3)    
 
     def smooth_color(self, new_color):
         r = int(self.smoothing_factor * new_color[0] + (1 - self.smoothing_factor) * self.previous_color[0])
@@ -43,10 +47,11 @@ class ScreenColorSync:
         if self.stopped:
             return
         r, g, b = color
-        color_str = f"rgb:{r},{g},{b}\n"
+        brightness = self.compute_brightness(color)
+        color_str = f"rgb:{r},{g},{b}, b:{brightness}\n"
         if self.serial_conn:
             self.serial_conn.write(color_str.encode())
-            print(f"Sent color: {color}")
+            print(f"Sent color: {color} with brightness: {brightness}")
 
     def turn_off_leds(self):
         if self.serial_conn:

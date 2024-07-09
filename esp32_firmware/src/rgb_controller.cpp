@@ -54,11 +54,18 @@ void fillSolid(CRGB color) {
 void screen_sync(const String& command){
     int commaIndex1 = command.indexOf(',');
     int commaIndex2 = command.indexOf(',', commaIndex1 + 1);
-    if (commaIndex1 > 0 && commaIndex2 > 0) {
+    int bIndex = command.indexOf("b:");
+    if (commaIndex1 > 0 && commaIndex2 > 0 && bIndex > 0) {
         int r = command.substring(4, commaIndex1).toInt();
         int g = command.substring(commaIndex1 + 1, commaIndex2).toInt();
         int b = command.substring(commaIndex2 + 1).toInt();
-        running = false;
+        int brightness = command.substring(bIndex + 2).toInt();
         fillSolid(CRGB(r, g, b));
+        set_brightness(brightness);
     }
+}
+
+void set_brightness(uint8_t brightness) {
+    FastLED.setBrightness(brightness);
+    FastLED.show();
 }
