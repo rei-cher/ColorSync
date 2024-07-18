@@ -1,9 +1,13 @@
 import tkinter as tk
+from tkinter import ttk
 import serial
 import time
 from threading import Thread
+from components.solid_color import SolidColor
+from components.screen_color_sync_ui import ScreenColorSyncUI
+from components.snake import Snake
+from components.rainbow import Rainbow
 from screen_color_sync import ScreenColorSync
-from screeninfo import get_monitors
 
 SERIAL_PORT = '/dev/ttyUSB0'
 BAUD_RATE = 115200
@@ -38,25 +42,53 @@ def on_closing():
     stop_color_sync()
     root.destroy()
 
+def show_screen_color_sync():
+    clear_content_frame()
+    ScreenColorSyncUI(content_frame, start_color_sync)
+
+def show_solid_color():
+    clear_content_frame()
+    SolidColor(content_frame, send_command)
+
+def show_snake():
+    clear_content_frame()
+    Snake(content_frame, send_command)
+
+def show_rainbow():
+    clear_content_frame()
+    Rainbow(content_frame, send_command)
+
+def clear_content_frame():
+    for widget in content_frame.winfo_children():
+        widget.destroy()
+
 def main():
-    global root
+    global root, content_frame
     root = tk.Tk()
     root.title("RGB Pattern Control")
     root.protocol("WM_DELETE_WINDOW", on_closing)
+    root.geometry("800x500")
+    root.resizable(False, False)
 
-    # List available screens
-    screens = get_monitors()
-    screen_var = tk.IntVar(value=0)
+    style = ttk.Style()
+    style.configure('TButton', font=('Helvetica', 12), padding=10)
+    style.configure('TLabel', font=('Helvetica', 12), padding=10)
+    style.configure('TRadiobutton', font=('Helvetica', 12), padding=5)
 
-    tk.Label(root, text="Select Screen:").pack(pady=5)
-    for i, screen in enumerate(screens):
-        tk.Radiobutton(root, text=f"Screen {i} ({screen.width}x{screen.height})", variable=screen_var, value=i).pack(anchor='w')
+    sidebar_frame = ttk.Frame(root, width=200, style='TFrame')
+    sidebar_frame.pack(expand=False, fill='both', side='left', anchor='nw')
 
-    tk.Button(root, text="Fill Red", command=lambda: send_command("fillRed")).pack(pady=10)
-    tk.Button(root, text="Rainbow", command=lambda: send_command("rainbow")).pack(pady=10)
-    tk.Button(root, text="Snake", command=lambda: send_command("snake")).pack(pady=10)
-    tk.Button(root, text="OFF", command=stop_color_sync).pack(pady=10)
-    tk.Button(root, text="Start Color Sync", command=lambda: start_color_sync(screen_var.get())).pack(pady=10)
+    content_frame = ttk.Frame(root, style='TFrame')
+    content_frame.pack(expand=True, fill='both', side='right')
+
+    ttk.Button(sidebar_frame, text="Screen Color Sync", command=show_screen_color_sync, width=20).pack(pady=10)
+    ttk.Button(sidebar_frame, text="Solid Color", command=show_solid_color, width=20).pack(pady=10)
+    ttk.Button(sidebar_frame, text="Snake", command=show_snake, width=20).pack(pady=10)
+    ttk.Button(sidebar_frame, text="Rainbow", command=show_rainbow, width=20).pack(pady=10)
+    ttk.Button(sidebar_frame, text="OFF", command=stop_color_sync, width=20).pack(pady=10)
+
+    exit_button = ttk.Button(root, text="Exit", command=on_closing, width=20)
+    exit_button.pack(side='bottom', pady=20, padx=100)
 
     root.mainloop()
 
