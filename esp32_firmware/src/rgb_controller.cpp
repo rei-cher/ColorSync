@@ -8,11 +8,6 @@ CRGB leds[NUM_LEDS];
 
 int snakeL = 10;
 
-void fillRed(){
-    fill_solid(leds, NUM_LEDS, CRGB::Red);
-    FastLED.show();
-}
-
 void rainbow(){
     leds[0] = CHSV(random(0,255), 255, 255);
     
@@ -51,6 +46,23 @@ void fillSolid(CRGB color) {
     FastLED.show();
 }
 
+void fillSolidColor(const String& command) {
+    if (command.startsWith("fillSolid:")) {
+        int startIdx = command.indexOf(':') + 1;
+        int commaIndex1 = command.indexOf(',', startIdx);
+        int commaIndex2 = command.indexOf(',', commaIndex1 + 1);
+        int bIndex = command.indexOf("b:");
+        if (commaIndex1 > 0 && commaIndex2 > 0) {
+            int r = command.substring(startIdx, commaIndex1).toInt();
+            int g = command.substring(commaIndex1 + 1, commaIndex2).toInt();
+            int b = command.substring(commaIndex2 + 1).toInt();
+            int brightness = command.substring(bIndex + 2).toInt();
+            fillSolid(CRGB(r, g, b));
+            set_brightness(brightness);
+        }
+    }
+}
+
 void screen_sync(const String& command){
     int commaIndex1 = command.indexOf(',');
     int commaIndex2 = command.indexOf(',', commaIndex1 + 1);
@@ -66,6 +78,6 @@ void screen_sync(const String& command){
 }
 
 void set_brightness(uint8_t brightness) {
-    FastLED.setBrightness(brightness);
+    FastLED.setBrightness(map(brightness, 0, 100, 0, 255));
     FastLED.show();
 }
