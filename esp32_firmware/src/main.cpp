@@ -3,7 +3,7 @@
 #include <rgb_controller.h>
 
 enum Command {
-  FILL_RED,
+  FILL_SOLID,
   RAINBOW,
   OFF,
   SCREEN_SYNC,
@@ -11,7 +11,7 @@ enum Command {
 };
 
 Command getCommand(const String& command) {
-    if (command == "fillRed") return FILL_RED;
+    if (command.startsWith("fillSolid:")) return FILL_SOLID;
     if (command == "rainbow") return RAINBOW;
     if (command == "off") return OFF;
     if (command.startsWith("rgb:")) return SCREEN_SYNC;
@@ -33,8 +33,9 @@ void loop() {
       running = false;
 
       switch (getCommand(command)){
-        case FILL_RED:
-          fillRed();
+        case FILL_SOLID:
+          running = true;
+          fillSolidColor(command);
           break;
         case RAINBOW:
           running = true;

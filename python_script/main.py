@@ -68,7 +68,7 @@ def main():
     root.title("RGB Pattern Control")
     root.protocol("WM_DELETE_WINDOW", on_closing)
     root.geometry("800x500")
-    root.resizable(False, False)
+    root.resizable(False, False)  # Make the window non-resizable
 
     style = ttk.Style()
     style.configure('TButton', font=('Helvetica', 12), padding=10)
@@ -88,7 +88,7 @@ def main():
     ttk.Button(sidebar_frame, text="OFF", command=stop_color_sync, width=20).pack(pady=10)
 
     exit_button = ttk.Button(root, text="Exit", command=on_closing, width=20)
-    exit_button.pack(side='bottom', pady=20, padx=100)
+    exit_button.pack(side='bottom', pady=10)
 
     root.mainloop()
 
