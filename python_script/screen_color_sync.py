@@ -15,7 +15,7 @@ class ScreenColorSync:
         self.running = True
         self.stopped = False
         self.previous_color = (0, 0, 0)
-        self.brigtness = 255
+        self.brigtness = 100
 
     def get_screen_region(self):
         monitors = get_monitors()
@@ -34,7 +34,13 @@ class ScreenColorSync:
         return image.getpixel((0, 0))
     
     def compute_brightness(self, color):
-        return int((color[0] + color[1] + color[2]) / 3)    
+        # Calculate the average brightness
+        average_brightness = (color[0] + color[1] + color[2]) / 3
+    
+        # Normalize the brightness to a maximum of 100
+        normalized_brightness = (average_brightness / 255) * 100
+    
+        return int(normalized_brightness)
 
     def smooth_color(self, new_color):
         r = int(self.smoothing_factor * new_color[0] + (1 - self.smoothing_factor) * self.previous_color[0])
