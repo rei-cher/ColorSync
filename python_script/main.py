@@ -23,6 +23,10 @@ def send_command(command):
     except serial.SerialException as e:
         print(f"Error communicating with serial port: {e}")
 
+def send_wifi_credentials(ssid, password):
+    command = f"wifi:{ssid}:{password}"
+    send_command(command)
+
 def start_color_sync(screen_index):
     global color_sync
     if color_sync is not None:
@@ -62,6 +66,21 @@ def clear_content_frame():
     for widget in content_frame.winfo_children():
         widget.destroy()
 
+def show_wifi_connect():
+    clear_content_frame()
+    ssid_label = ttk.Label(content_frame, text="SSID:")
+    ssid_label.pack(pady=5)
+    ssid_entry = ttk.Entry(content_frame, width=20)
+    ssid_entry.pack(pady=5)
+
+    password_label = ttk.Label(content_frame, text="Password:")
+    password_label.pack(pady=5)
+    password_entry = ttk.Entry(content_frame, width=20, show='*')
+    password_entry.pack(pady=5)
+
+    send_wifi_button = ttk.Button(content_frame, text="Connect", command=lambda: send_wifi_credentials(ssid_entry.get(), password_entry.get()))
+    send_wifi_button.pack(pady=10)
+
 def main():
     global root, content_frame
     root = tk.Tk()
@@ -85,6 +104,7 @@ def main():
     ttk.Button(sidebar_frame, text="Solid Color", command=show_solid_color, width=20).pack(pady=10)
     ttk.Button(sidebar_frame, text="Snake", command=show_snake, width=20).pack(pady=10)
     ttk.Button(sidebar_frame, text="Rainbow", command=show_rainbow, width=20).pack(pady=10)
+    ttk.Button(sidebar_frame, text="Connect to WiFi", command=show_wifi_connect, width=20).pack(pady=10)
     ttk.Button(sidebar_frame, text="OFF", command=stop_color_sync, width=20).pack(pady=10)
 
     exit_button = ttk.Button(root, text="Exit", command=on_closing, width=20)
