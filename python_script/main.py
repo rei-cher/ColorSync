@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import serial
 import time
+import requests
 from threading import Thread
 from components.solid_color import SolidColor
 from components.screen_color_sync_ui import ScreenColorSyncUI
@@ -11,17 +12,44 @@ from screen_color_sync import ScreenColorSync
 
 SERIAL_PORT = '/dev/ttyUSB0'
 BAUD_RATE = 115200
+ESP32_IP = "192.168.1.243"
 
 color_sync = None
 
 def send_command(command):
+    # if esp32_connected_via_usb():
+    #     try:
+    #         with serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1) as ser:
+    #             ser.write((command + '\n').encode())
+    #             time.sleep(0.1)
+    #             print(f"Sent command via USB: {command}")
+    #     except serial.SerialException as e:
+    #         print(f"Error communicating with serial port: {e}")
+    # else:
+        send_command_via_wifi(command)
+
+def send_command_via_wifi(command):
+    url = f"http://{ESP32_IP}/command"
+    try:
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        response = requests.post(url, data=f'plain={command}', headers=headers)
+        if response.status_code == 200:
+            print(f"Sent command via WiFi: {command}")
+        else:
+            print(f"Failed to send command via WiFi: {response.text}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error communicating with ESP32 over WiFi: {e}")
+
+def esp32_connected_via_usb():
     try:
         with serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1) as ser:
-            ser.write((command + '\n').encode())
-            time.sleep(0.1)
-            print(f"Sent command: {command}")
-    except serial.SerialException as e:
-        print(f"Error communicating with serial port: {e}")
+            return True
+    except serial.SerialException:
+        return False
+
+def send_wifi_credentials(ssid, password):
+    command = f"wifi:{ssid}:{password}"
+    send_command(command)
 
 def start_color_sync(screen_index):
     global color_sync
@@ -62,6 +90,21 @@ def clear_content_frame():
     for widget in content_frame.winfo_children():
         widget.destroy()
 
+def show_wifi_connect():
+    clear_content_frame()
+    ssid_label = ttk.Label(content_frame, text="SSID:")
+    ssid_label.pack(pady=5)
+    ssid_entry = ttk.Entry(content_frame, width=20)
+    ssid_entry.pack(pady=5)
+
+    password_label = ttk.Label(content_frame, text="Password:")
+    password_label.pack(pady=5)
+    password_entry = ttk.Entry(content_frame, width=20, show='*')
+    password_entry.pack(pady=5)
+
+    send_wifi_button = ttk.Button(content_frame, text="Connect", command=lambda: send_wifi_credentials(ssid_entry.get(), password_entry.get()))
+    send_wifi_button.pack(pady=10)
+
 def main():
     global root, content_frame
     root = tk.Tk()
@@ -85,6 +128,7 @@ def main():
     ttk.Button(sidebar_frame, text="Solid Color", command=show_solid_color, width=20).pack(pady=10)
     ttk.Button(sidebar_frame, text="Snake", command=show_snake, width=20).pack(pady=10)
     ttk.Button(sidebar_frame, text="Rainbow", command=show_rainbow, width=20).pack(pady=10)
+    ttk.Button(sidebar_frame, text="Connect to WiFi", command=show_wifi_connect, width=20).pack(pady=10)
     ttk.Button(sidebar_frame, text="OFF", command=stop_color_sync, width=20).pack(pady=10)
 
     exit_button = ttk.Button(root, text="Exit", command=on_closing, width=20)
