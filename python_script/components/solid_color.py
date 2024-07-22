@@ -49,6 +49,7 @@ class SolidColor:
         brightness = self.brightness_scale.get()
         self.send_command(f"fillSolid:{color[0]},{color[1]},{color[2]},b:{brightness}")
         print(f"Chosen color: {color[0]}, {color[1]}, {color[2]}, Brightness: {brightness}")
+        print(f"Command: fillSolid:{color[0]},{color[1]},{color[2]},b:{brightness}")
 
     def on_brightness_change(self, value):
         color = self.last_color

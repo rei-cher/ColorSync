@@ -1,6 +1,8 @@
 #include <web_server.h>
+#include <rgb_controller.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
+#include <command_handler.h>
 
 AsyncWebServer server(80);
 
@@ -36,18 +38,42 @@ void setupWebServer(){
         request->send(200, "text/plain", "ESP32 is up and running");
     });
 
-    //Route to handle RGB commands
-    server.on("/rgb", HTTP_GET, [](AsyncWebServerRequest *request){
-        if(request->hasParam("color")){
-            String color = request->getParam("color")->value();
-            //Parse and set rgb color
-            request->send(200, "text/plain", "Color set to "+color);
-            Serial.print("Color set to: ");
-      Serial.println(color);
-        }
-        else{
-            request->send(400, "text/palin", "Bad Request");
-            Serial.println("Bad Request: Missing 'color' parameter");
+    // Route to handle RGB commands via POST
+    server.on("/command", HTTP_POST, [](AsyncWebServerRequest *request) {
+        if (request->hasParam("plain", true)) {
+            String command = request->getParam("plain", true)->value();
+            Serial.println("Received command: " + command);
+
+            running = false;
+
+            switch (getCommand(command)) {
+                case FILL_SOLID:
+                    running = true;
+                    fillSolidColor(command);
+                    break;
+                case RAINBOW:
+                    running = true;
+                    rainbow();
+                    break;
+                case OFF:
+                    rgb_off();
+                    break;
+                case SCREEN_SYNC:
+                    screen_sync(command);
+                    break;
+                case SET_WIFI:
+                    connectToWifi(command);
+                    break;
+                case INVALID:
+                default:
+                    rgb_off();
+                    break;
+            }
+
+            request->send(200, "text/plain", "Command received: " + command);
+        } else {
+            request->send(400, "text/plain", "Bad Request: Missing command parameter");
+            Serial.println("Bad Request: Missing command parameter");
         }
     });
 

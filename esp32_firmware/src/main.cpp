@@ -2,27 +2,11 @@
 #include <FastLED.h>
 #include <rgb_controller.h>
 #include <web_server.h>
+#include <command_handler.h>
 
 const char* ssid = "SpectrumSetup-4FDF";
 const char* password = "royalcable228";
 
-enum Command {
-  FILL_SOLID,
-  RAINBOW,
-  OFF,
-  SCREEN_SYNC,
-  SET_WIFI,
-  INVALID
-};
-
-Command getCommand(const String& command) {
-    if (command.startsWith("fillSolid:")) return FILL_SOLID;
-    if (command == "rainbow") return RAINBOW;
-    if (command == "off") return OFF;
-    if (command.startsWith("rgb:")) return SCREEN_SYNC;
-    if (command.startsWith("wifi:")) return SET_WIFI;
-    return INVALID;
-}
 
 void setup() {
     Serial.begin(115200);
@@ -31,8 +15,7 @@ void setup() {
     setupWebServer();
 
     FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
-    FastLED.setBrightness(15);
-    Serial.begin(115200); // Initialize serial communication
+    // FastLED.setBrightness(15);
     rgb_off();
 }
 

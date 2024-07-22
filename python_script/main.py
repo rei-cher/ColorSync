@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import serial
 import time
+import requests
 from threading import Thread
 from components.solid_color import SolidColor
 from components.screen_color_sync_ui import ScreenColorSyncUI
@@ -11,17 +12,40 @@ from screen_color_sync import ScreenColorSync
 
 SERIAL_PORT = '/dev/ttyUSB0'
 BAUD_RATE = 115200
+ESP32_IP = "192.168.1.243"
 
 color_sync = None
 
 def send_command(command):
+    # if esp32_connected_via_usb():
+    #     try:
+    #         with serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1) as ser:
+    #             ser.write((command + '\n').encode())
+    #             time.sleep(0.1)
+    #             print(f"Sent command via USB: {command}")
+    #     except serial.SerialException as e:
+    #         print(f"Error communicating with serial port: {e}")
+    # else:
+        send_command_via_wifi(command)
+
+def send_command_via_wifi(command):
+    url = f"http://{ESP32_IP}/command"
+    try:
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        response = requests.post(url, data=f'plain={command}', headers=headers)
+        if response.status_code == 200:
+            print(f"Sent command via WiFi: {command}")
+        else:
+            print(f"Failed to send command via WiFi: {response.text}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error communicating with ESP32 over WiFi: {e}")
+
+def esp32_connected_via_usb():
     try:
         with serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1) as ser:
-            ser.write((command + '\n').encode())
-            time.sleep(0.1)
-            print(f"Sent command: {command}")
-    except serial.SerialException as e:
-        print(f"Error communicating with serial port: {e}")
+            return True
+    except serial.SerialException:
+        return False
 
 def send_wifi_credentials(ssid, password):
     command = f"wifi:{ssid}:{password}"
