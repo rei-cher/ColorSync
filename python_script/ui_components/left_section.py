@@ -31,7 +31,7 @@ class LeftSection(ctk.CTkFrame):
             column=0, 
             padx=20, 
             pady=20,
-            command=self.display_rgb_sphere
+            command=self.display_rgb_wheel
         )
         self.solid_color_button.grid(row=self.solid_color_button.row, column=self.solid_color_button.column, padx=self.solid_color_button.padx, pady=self.solid_color_button.pady)
 
@@ -61,5 +61,5 @@ class LeftSection(ctk.CTkFrame):
         )
         self.exit_button.grid(row=self.exit_button.row, column=self.exit_button.column, padx=self.exit_button.padx, pady=self.exit_button.pady, sticky='s')
 
-    def display_rgb_sphere(self):
-        self.main_section.display_rgb_sphere()
+    def display_rgb_wheel(self):
+        self.main_section.display_rgb_wheel()
