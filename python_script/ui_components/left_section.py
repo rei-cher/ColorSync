@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from ui_components.additions.button import CustomButton
+import sys
 
 class LeftSection(ctk.CTkFrame):
     def __init__(self, master, main_section):
@@ -57,9 +58,13 @@ class LeftSection(ctk.CTkFrame):
             row=3, 
             column=0, 
             padx=20, 
-            pady=20
+            pady=20,
+            command=self.exit_application
         )
         self.exit_button.grid(row=self.exit_button.row, column=self.exit_button.column, padx=self.exit_button.padx, pady=self.exit_button.pady, sticky='s')
 
     def display_rgb_wheel(self):
         self.main_section.display_rgb_wheel()
+
+    def exit_application(self):
+        sys.exit()
