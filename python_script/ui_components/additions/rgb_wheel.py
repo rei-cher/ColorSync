@@ -2,6 +2,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import numpy as np
 import colorsys
+import customtkinter as ctk
 
 red, green, blue = 43, 43, 43
 class RGBWheel:
@@ -95,6 +96,11 @@ class RGBWheel:
 
         # Connect the click event to the on_click function
         fig.canvas.mpl_connect('button_press_event', on_click)
+
+        # Add a brightness scrollbar
+        self.brightness_scale = ctk.CTkSlider(master = self.parent, from_ = 0, to = 1, number_of_steps = 100, command = self.update_brightness)
+        self.brightness_scale.set(self.brightness)
+        self.brightness_scale.grid(row = 1, column = 0, padx = 20, pady = 10)
 
     def update_brightness(self, value):
         self.brightness = float(value)
